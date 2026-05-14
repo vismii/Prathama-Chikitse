@@ -1,0 +1,6 @@
+{
+  "name": "Pratham-Chikitse",
+  "description": "A high-performance first-aid emergency guide for critical situations like choking, burns, and snake bites. Featuring offline-ready step-by-step instructions in Kannada and English, simulated hospital finder, and audio mode.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}

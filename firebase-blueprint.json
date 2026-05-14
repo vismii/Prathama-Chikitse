@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User preferences and basic info",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "language": { "type": "string", "enum": ["en", "kn"] },
+        "lastActive": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "language"]
+    },
+    "IncidentLog": {
+      "title": "Emergency Incident Log",
+      "description": "A log of when an emergency guide was opened (for stats/analytics)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "emergencyId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/logs/{logId}": {
+      "schema": "IncidentLog",
+      "description": "Audit logs for emergency access"
+    }
+  }
+}

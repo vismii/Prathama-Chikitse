@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.uid == request.auth.uid &&
+               data.language in ['en', 'kn'] &&
+               data.keys().hasAll(['uid', 'language']) &&
+               data.keys().size() <= 6;
+      }
+
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['language', 'displayName', 'lastActive']);
+    }
+
+    // 2. Logs Collection
+    match /logs/{logId} {
+      function isValidLog(data) {
+        return data.userId == request.auth.uid &&
+               data.emergencyId is string &&
+               data.keys().hasAll(['userId', 'emergencyId', 'timestamp']);
+      }
+
+      allow create: if isSignedIn() && isValidLog(request.resource.data);
+      // No read/update/delete for users (Security by design)
+    }
+  }
+}
